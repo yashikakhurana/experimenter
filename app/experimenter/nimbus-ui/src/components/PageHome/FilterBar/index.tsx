@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { Form, InputGroup } from "react-bootstrap";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Select, { OptionsType, OptionTypeBase } from "react-select";
@@ -28,6 +29,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   value: filterValue,
   onChange,
 }) => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   return (
     <Navbar
       variant="light"
@@ -92,6 +95,35 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           optionLabelName="label"
           {...{ filterValue, onChange }}
         />
+
+        <InputGroup className="pb-2">
+          <InputGroup.Prepend>
+            <InputGroup.Text>Start</InputGroup.Text>
+          </InputGroup.Prepend>
+          <Form.Control
+            type="date"
+            name="startDate"
+            placeholder="Start Date"
+            value={startDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setStartDate(e.target.value)
+            }
+          />
+        </InputGroup>
+        <InputGroup>
+          <InputGroup.Prepend>
+            <InputGroup.Text>End</InputGroup.Text>
+          </InputGroup.Prepend>
+          <Form.Control
+            type="date"
+            name="endDate"
+            placeholder="End Date"
+            value={endDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEndDate(e.target.value)
+            }
+          />
+        </InputGroup>
       </Nav>
     </Navbar>
   );
@@ -130,6 +162,8 @@ const FilterSelect = <
 
   const fieldValue = filterValue[filterValueName];
   const { applications } = useConfig();
+  console.log(filterValueName);
+  console.log(filterValue.projects);
 
   return (
     <Nav.Item className="mb-2 text-left flex-basis-0 flex-grow-1 flex-shrink-1 w-100">
