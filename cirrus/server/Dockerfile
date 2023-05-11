@@ -1,5 +1,43 @@
+FROM rust:buster AS builder
+
+ARG as_version
+
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+RUN update-ca-certificates
+
+RUN apt-get update -qqy \
+    && apt-get -qqy install \
+    gyp \
+    ninja-build \
+    zlib1g-dev \
+    tclsh \
+    python3-venv
+
+RUN git clone https://github.com/mozilla/application-services.git
+RUN if [[ -z "${as_version}" ]] ; then \
+    echo "No application-services version supplied, using lastest commit." \
+    ; else \
+    cd application-services && git fetch \
+    ; fi
+
+WORKDIR /application-services
+
+RUN git submodule init
+RUN git submodule update --recursive
+
+RUN cargo build --manifest-path megazords/cirrus/Cargo.toml --release
+RUN cargo uniffi-bindgen generate components/nimbus/src/cirrus.udl --language python
+
+RUN mv components/nimbus/src/cirrus.py cirrus_sdk.py
+RUN mv target/release/libcirrus.so libuniffi_cirrus.so
+
 # Use official Python runtime as a parent image
 FROM python:3.11.2-slim-buster
+
+COPY --from=builder /application-services /application-services
+ENV PYTHONPATH=$PYTHONPATH:/application-services
+
 
 # Set working directory for the container
 WORKDIR /app/cirrus
@@ -27,3 +65,5 @@ COPY . .
 
 # Start application with Uvicorn server
 CMD ["uvicorn", "cirrus.main:app", "--host", "0.0.0.0", "--port", "8001"]
+
+
