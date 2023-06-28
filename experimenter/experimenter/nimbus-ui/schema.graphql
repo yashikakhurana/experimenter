@@ -243,6 +243,7 @@ enum NimbusExperimentApplicationEnum {
   KLAR_ANDROID
   FOCUS_IOS
   KLAR_IOS
+  POCKET
 }
 
 enum NimbusExperimentChannelEnum {

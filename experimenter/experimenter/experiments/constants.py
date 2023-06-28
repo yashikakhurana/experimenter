@@ -20,6 +20,7 @@ class Channel(models.TextChoices):
 class BucketRandomizationUnit(models.TextChoices):
     NORMANDY = "normandy_id"
     NIMBUS = "nimbus_id"
+    USER_ID = "user_id"
 
 
 @dataclass
@@ -124,6 +125,18 @@ APPLICATION_CONFIG_KLAR_IOS = ApplicationConfig(
     randomization_unit=BucketRandomizationUnit.NIMBUS,
 )
 
+APPLICATION_CONFIG_POCKET_WEB = ApplicationConfig(
+    name="Pocket Web",
+    slug="pocket-web",
+    app_name="pocket_web",
+    channel_app_id={
+        Channel.BETA: "pocket-beta",
+        Channel.RELEASE: "pocket-release",
+    },
+    kinto_collection=settings.KINTO_COLLECTION_NIMBUS_WEB,
+    randomization_unit=BucketRandomizationUnit.USER_ID,
+)
+
 NO_FEATURE_SLUG = [
     "no-feature-focus-android",
     "no-feature-klar-ios",
@@ -132,6 +145,7 @@ NO_FEATURE_SLUG = [
     "no-feature-ios",
     "no-feature-fenix",
     "no-feature-firefox-desktop",
+    "no-feature-pocket",
 ]
 
 
@@ -154,6 +168,10 @@ class Application(models.TextChoices):
     KLAR_IOS = (
         APPLICATION_CONFIG_KLAR_IOS.slug,
         APPLICATION_CONFIG_KLAR_IOS.name,
+    )
+    POCKET = (
+        APPLICATION_CONFIG_POCKET_WEB.slug,
+        APPLICATION_CONFIG_POCKET_WEB.name,
     )
 
 
@@ -196,6 +214,7 @@ class NimbusConstants(object):
         Application.KLAR_ANDROID: APPLICATION_CONFIG_KLAR_ANDROID,
         Application.FOCUS_IOS: APPLICATION_CONFIG_FOCUS_IOS,
         Application.KLAR_IOS: APPLICATION_CONFIG_KLAR_IOS,
+        Application.POCKET: APPLICATION_CONFIG_POCKET_WEB,
     }
 
     Channel = Channel
@@ -406,7 +425,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "You must select a feature configuration from the drop down."
     )
     ERROR_LAUNCHING_DISABLED = (
-        "Launching experiments has been temporarily disabled by the site administrators."
+        "Launching experiments has been temporarily disabled "
+        "by the site administrators."
     )
     ERROR_POPULATION_PERCENT_MIN = "Ensure this value is greater than or equal to 0.0001."
     ERROR_FIREFOX_VERSION_MIN = (
